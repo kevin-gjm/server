@@ -1,0 +1,13 @@
+<html>
+	<head>
+		 <meta charset="UTF-8">
+		<script>
+			function mal(){
+				alert("提示框!");
+			}
+		</script>
+	</head>
+	<body>
+	<button onclick="mal()">alert</button>
+	</body>
+</html>
