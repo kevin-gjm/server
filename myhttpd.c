@@ -1,3 +1,18 @@
+/*======================================================
+#
+# Copyright(C),2015,Company
+#
+# Author: kevin gjm_kevin@163.com
+#
+# Last modified: 2016-01-02 18:39
+#
+# Filename: myhttpd.c
+#
+# Version:
+#
+# Description: 
+#
+=====================================================*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
