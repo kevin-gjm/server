@@ -3,7 +3,6 @@
 CC = gcc
 
 SRCS = myhttpd.c \
-	   sql.c \
 	   mysqlhelper.c \
 	   cJSON.c  \
 	   http_handle.c	\

@@ -26,7 +26,6 @@
 //for http
 #include <evhttp.h>
 #include <signal.h>
-#include "sql.h"
 #include "mysqlhelper.h"
 
 #define MYHTTPD_SIGNATURE   "myhttpd v 0.0.1"
@@ -143,7 +142,7 @@ void serve_file(struct evhttp_request *req,const char * filename)
 			tempbuf[r] = '\0';
 			evbuffer_add_printf(buf,"%s",tempbuf);
 		}
-		//sqltest();
+		sqltest();
 		//evbuffer_add_printf(buf,"%s",out);
 		//evbuffer_add_printf(buf, "It works!\n%s\n", output);
 		//evhttp_send_reply(req, HTTP_OK, "OK", buf);
