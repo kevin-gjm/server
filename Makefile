@@ -2,11 +2,11 @@
 
 CC = gcc
 
-SRCS = myhttpd.c \
-	   mysqlhelper.c \
+SRCS = mysqlhelper.c \
 	   cJSON.c  \
 	   http_handle.c	\
-	   data_handle.c
+	   data_handle.c	\
+	   myhttpd.c
 
 OBJS = $(SRCS:.c=.o)
 
@@ -17,7 +17,7 @@ CFLAGS = -g -Wall -O2
 LIBS = -levent -lmysqlclient -lm 
 
 start:$(OBJS)
-	$(CC) -o $(EXEC) $(OBJS) $(LIBS)
+	$(CC) -o  $(EXEC) $(CFLAGS) $(OBJS) $(LIBS)
 
 .cpp.o:
 	$(CC) -o $@ -c $<
