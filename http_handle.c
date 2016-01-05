@@ -19,17 +19,6 @@
 #define DE_FILE_TYPE "index.html"
 
 
-int execute_cgi_get(struct evkeyvalq *params)
-{
-	char tmp[1024]={0};
-	sprintf(tmp,"key=%s",evhttp_find_header(params,"key"));
-	printf("%s\n",tmp);
-	sprintf(tmp,"name=%s",evhttp_find_header(params,"name"));
-	printf("%s\n",tmp);
-	sqltest();
-	return 1;
-
-}
 /*===================
  * 功能： 获取http请求路径
  * 参数：uri：URL
