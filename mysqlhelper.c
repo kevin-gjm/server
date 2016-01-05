@@ -24,8 +24,8 @@ void  mysqlhelper_destroy()
 {
 	mysql_close(DBOHBJ);
 }
-/*
-void display_head(MYSQL_RES * res,void (*show_head)(char*))
+
+void display_json_head(MYSQL_RES * res,void (*show_head)(char*))
 {
 	MYSQL_FIELD * field_ptr;
 	while((field_ptr = mysql_fetch_field(res))!=NULL)
@@ -34,7 +34,7 @@ void display_head(MYSQL_RES * res,void (*show_head)(char*))
 	}
 }
 
-int mysqlhelper_select_data(const char *sql,char * out)
+int mysqlhelper_select_json_data(const char *sql,char * out)
 {
 	int ret=-1;
 	MYSQL_RES *res;
@@ -82,7 +82,6 @@ int mysqlhelper_select_data(const char *sql,char * out)
 
 	return ret;
 }
-*/
 void display_head(MYSQL_RES * res,void (*show_head)(char*))
 {
 	MYSQL_FIELD * field_ptr;
