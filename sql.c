@@ -8,8 +8,6 @@ char *passwd = "ming";
 char *host = "localhost";
 char *database = "paper";
 
-char out[20480] = {};
-char temp[256] = {};
 
 char * select_json_by_sql(const char *sql,int *count)
 {

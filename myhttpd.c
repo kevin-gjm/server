@@ -32,7 +32,6 @@
 #define MYHTTPD_SIGNATURE   "myhttpd v 0.0.1"
 #define ROOT "www%s"
 #define DE_FILE_TYPE "index.html"
-extern char out[20480];
 /*====================
  *
  ====================*/
@@ -123,14 +122,6 @@ void not_found(struct evhttp_request *req,const char *filename)
 }
 void serve_file(struct evhttp_request *req,const char * filename)
 {
-	//refer to tinyhttpd
-	/*
-	 *1. juge whether the file 
-	 *   --exit???
-	 *   --authority?? can read
-	 *     --call not_found to return 
-	 *2.read the file and return
-	 */
 	int fd,r;
 	char tempbuf[1025];
 	if((fd = open(filename,O_RDONLY)) < 0)
@@ -153,7 +144,7 @@ void serve_file(struct evhttp_request *req,const char * filename)
 			evbuffer_add_printf(buf,"%s",tempbuf);
 		}
 		//sqltest();
-		evbuffer_add_printf(buf,"%s",out);
+		//evbuffer_add_printf(buf,"%s",out);
 		//evbuffer_add_printf(buf, "It works!\n%s\n", output);
 		//evhttp_send_reply(req, HTTP_OK, "OK", buf);
 		//evhttp_response_code(req,HTTP_OK,"OK");
@@ -172,8 +163,6 @@ void serve_file(struct evhttp_request *req,const char * filename)
 
 //处理模块
 void httpd_handler(struct evhttp_request *req, void *arg) {
-	char output[2048] = "\0";
-	char tmp[1024];
 	char path[512];
 
 	int cgi =0;
@@ -182,40 +171,34 @@ void httpd_handler(struct evhttp_request *req, void *arg) {
 
 	struct stat st;
 
-	memset(out, 0, sizeof(out));
+	//get uri
+	//	sprintf(tmp, "uri=%s\n", req->uri);
+	//	what's the diference of req->uri and uri??????
 	uri = evhttp_request_uri(req);
-	sprintf(tmp, "uri=%s\n", uri);
-	strcat(output, tmp);
-
-	sprintf(tmp, "uri=%s\n", req->uri);
-	strcat(output, tmp);
 	//decoded uri
 	char *decoded_uri;
 	decoded_uri = evhttp_decode_uri(uri);
-	sprintf(tmp, "decoded_uri=%s\n", decoded_uri);
-	strcat(output, tmp);
 
+	//get the path. cgi =1 have param
 	cgi = http_get_path(uri,path);
-	sprintf(tmp,"path=%s\n",path);
-	strcat(output,tmp);
 	/*
-	   if(req->type == EVHTTP_REQ_GET )
-	   {
-	//解析URI的参数(即GET方法的参数)
-
-	struct evkeyvalq params;
-	evhttp_parse_query(decoded_uri, &params);
-	sprintf(tmp, "q=%s\n", evhttp_find_header(&params, "q"));
-	strcat(output, tmp);
-	sprintf(tmp, "s=%s\n", evhttp_find_header(&params, "s"));
-	strcat(output, tmp);
+	if(req->type == EVHTTP_REQ_GET )
+	{
+		//解析URI的参数(即GET方法的参数)
+	
+		struct evkeyvalq params;
+		evhttp_parse_query(decoded_uri, &params);
+		sprintf(tmp, "q=%s\n", evhttp_find_header(&params, "q"));
+		strcat(output, tmp);
+		sprintf(tmp, "s=%s\n", evhttp_find_header(&params, "s"));
+		strcat(output, tmp);
 	}else if(req->type == EVHTTP_REQ_POST)
 	{
-	cgi =1;
-	//获取POST方法的数据
-	char *post_data = (char *) EVBUFFER_DATA(req->input_buffer);
-	sprintf(tmp, "post_data=%s\n", post_data);
-	strcat(output, tmp);
+		cgi =1;
+		//获取POST方法的数据
+		char *post_data = (char *) EVBUFFER_DATA(req->input_buffer);
+		sprintf(tmp, "post_data=%s\n", post_data);
+		strcat(output, tmp);
 	}
 
 */
@@ -241,9 +224,14 @@ void httpd_handler(struct evhttp_request *req, void *arg) {
 		if((st.st_mode & S_IXUSR) || (st.st_mode & S_IXGRP) || (st.st_mode & S_IXOTH))
 
 			cgi = 1;
+		if(req->type == EVHTTP_REQ_POST)
+			cgi = 1;
 
 		//printf("cgi:%d\n",cgi);
-
+		//cgi=1 的所有情况
+		// 1. GET后面带有参数
+		// 2.请求文件为可执行文件
+		// 3.POST请求
 		if(!cgi)
 		{
 			serve_file(req,path);

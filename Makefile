@@ -5,7 +5,9 @@ CC = gcc
 SRCS = myhttpd.c \
 	   sql.c \
 	   mysqlhelper.c \
-	   cJSON.c
+	   cJSON.c  \
+	   http_handle.c	\
+	   data_handle.c
 
 OBJS = $(SRCS:.c=.o)
 
