@@ -33,7 +33,30 @@
 #define ROOT "www%s"
 #define DE_FILE_TYPE "index.html"
 extern char out[20480];
+/*====================
+ *
+ ====================*/
+int execute_cgi_get(struct evkeyvalq *params)
+{
+	char tmp[1024]={0};
+	sprintf(tmp,"key=%s",evhttp_find_header(params,"key"));
+	printf("%s\n",tmp);
+	sprintf(tmp,"name=%s",evhttp_find_header(params,"name"));
+	printf("%s\n",tmp);
+	sqltest();
+	return 1;
 
+}
+/*===================
+ * 功能： 获取http请求路径
+ * 参数：uri：URL
+ *		 path：路径 
+ * 返回值：int
+ *			路径后面是否有参数（cgi）
+ *			0 没有
+ *
+ *			1 有
+ ====================*/
 int http_get_path(const char* uri,char *path) 
 {
 	int ret =0;
@@ -118,20 +141,18 @@ void serve_file(struct evhttp_request *req,const char * filename)
 	{
 		struct evbuffer *buf;
 		buf = evbuffer_new();
-		//HTTP header
-		/*
-		   evhttp_add_header(req->output_headers, "Server", MYHTTPD_SIGNATURE);
-		   evhttp_add_header(req->output_headers, "Content-Type", "text/plain; charset=UTF-8");
-		   evhttp_add_header(req->output_headers, "Connection", "close");
-		   */
 		//输出的内容
 		evhttp_send_reply_start(req,200,"OK");
+		//HTTP header
+		evhttp_add_header(req->output_headers, "Server", MYHTTPD_SIGNATURE);
+		evhttp_add_header(req->output_headers, "Content-Type", "text/plain; charset=UTF-8");
+		evhttp_add_header(req->output_headers, "Connection", "Keep-Alive");
 		while((r = read(fd,tempbuf,1024))>0)
 		{
 			tempbuf[r] = '\0';
 			evbuffer_add_printf(buf,"%s",tempbuf);
 		}
-		//	sqltest();
+		//sqltest();
 		evbuffer_add_printf(buf,"%s",out);
 		//evbuffer_add_printf(buf, "It works!\n%s\n", output);
 		//evhttp_send_reply(req, HTTP_OK, "OK", buf);
@@ -177,27 +198,27 @@ void httpd_handler(struct evhttp_request *req, void *arg) {
 	cgi = http_get_path(uri,path);
 	sprintf(tmp,"path=%s\n",path);
 	strcat(output,tmp);
+	/*
+	   if(req->type == EVHTTP_REQ_GET )
+	   {
+	//解析URI的参数(即GET方法的参数)
 
-	if(req->type == EVHTTP_REQ_GET )
-	{
-		//解析URI的参数(即GET方法的参数)
-
-		struct evkeyvalq params;
-		evhttp_parse_query(decoded_uri, &params);
-		sprintf(tmp, "q=%s\n", evhttp_find_header(&params, "q"));
-		strcat(output, tmp);
-		sprintf(tmp, "s=%s\n", evhttp_find_header(&params, "s"));
-		strcat(output, tmp);
+	struct evkeyvalq params;
+	evhttp_parse_query(decoded_uri, &params);
+	sprintf(tmp, "q=%s\n", evhttp_find_header(&params, "q"));
+	strcat(output, tmp);
+	sprintf(tmp, "s=%s\n", evhttp_find_header(&params, "s"));
+	strcat(output, tmp);
 	}else if(req->type == EVHTTP_REQ_POST)
 	{
-		cgi =1;
-		//获取POST方法的数据
-		char *post_data = (char *) EVBUFFER_DATA(req->input_buffer);
-		sprintf(tmp, "post_data=%s\n", post_data);
-		strcat(output, tmp);
+	cgi =1;
+	//获取POST方法的数据
+	char *post_data = (char *) EVBUFFER_DATA(req->input_buffer);
+	sprintf(tmp, "post_data=%s\n", post_data);
+	strcat(output, tmp);
 	}
-	free(decoded_uri);
 
+*/
 	//	若路径处的文件是一个可执行文件 设置cgi=1
 	if(stat(path,&st) == -1)
 	{
@@ -221,7 +242,7 @@ void httpd_handler(struct evhttp_request *req, void *arg) {
 
 			cgi = 1;
 
-		printf("cgi:%d\n",cgi);
+		//printf("cgi:%d\n",cgi);
 
 		if(!cgi)
 		{
@@ -229,11 +250,18 @@ void httpd_handler(struct evhttp_request *req, void *arg) {
 		}
 		else
 		{
-			//execute_cgi();
+			if(req->type == EVHTTP_REQ_GET )
+			{	
+				struct evkeyvalq params;
+				evhttp_parse_query(decoded_uri, &params);
+				execute_cgi_get(&params);
+			}
 		}
+
 	}
 
 
+	free(decoded_uri);
 	/*
 	   具体的：可以根据GET/POST的参数执行相应操作，然后将结果输出
 	   ...

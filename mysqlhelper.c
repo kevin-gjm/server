@@ -25,28 +25,33 @@ void  mysqlhelper_destroy()
 	mysql_close(DBOHBJ);
 }
 
-void display_json_head(MYSQL_RES * res,void (*show_head)(char*))
+void display_json_head(MYSQL_RES * res,cJSON *root)
 {
 	MYSQL_FIELD * field_ptr;
+	//cJSON * header;
+	//cJSON_AddItemToArray(root,header=cJSON_CreateArray());
 	while((field_ptr = mysql_fetch_field(res))!=NULL)
 	{
-		show_head(field_ptr->name);
+		//cJSON_AddItemToObject(root,"",((field_ptr->name!=NULL)?*(field_ptr->name):""));
+		cJSON_AddStringToObject(root,"",((field_ptr->name!=NULL)? (field_ptr->name):""));
+	//	show_head(field_ptr->name);
 	}
 }
 
-int mysqlhelper_select_json_data(const char *sql,char * out)
+char *  mysqlhelper_select_json_data(const char *sql,int *count)
 {
 	int ret=-1;
 	MYSQL_RES *res;
 	MYSQL_ROW row;
-	cJSON *root,*header,*content;
+	cJSON *root,*header,*content,*line;
 	unsigned int field_count =0;
+	char *jout;// = NULL ;
 
 	if(mysql_query(DBOHBJ,sql))
 	{
 		fprintf(stderr,"select data error:%s:%s\n",__func__,mysql_error(DBOHBJ));
 	
-		return -1;
+		return NULL;
 	}else
 	{
 	//	res = mysql_use_result(DBOHBJ);
@@ -55,20 +60,20 @@ int mysqlhelper_select_json_data(const char *sql,char * out)
 		if(res)
 		{
 			root = cJSON_CreateObject();
-			cJSON_AddItemToObject(root,"Headers",header=cJSON_CreateObject());
-			display_head(res,header);
-			ret = mysql_num_rows(res);
-			
+			cJSON_AddItemToObject(root,"Headers",header=cJSON_CreateArray());
+			display_json_head(res,header);
+			*count  = mysql_num_rows(res);
+			cJSON_AddItemToObject(root,"Content",content=cJSON_CreateArray());
 			while((row = mysql_fetch_row(res)) != NULL)
 			{
 				field_count = 0;
-				show_line_begin();
+				cJSON_AddItemToArray(content,line=cJSON_CreateArray());
 				while(field_count < mysql_field_count(DBOHBJ))
 				{
-					show_element(row[field_count]);
+					cJSON_AddStringToObject(line,"",row[field_count]!=NULL?row[field_count]:"");
+				//	show_element(row[field_count]);
 					field_count++;
 				}
-				show_line_end();
 			}
 			mysql_free_result(res);
 		}
@@ -76,11 +81,14 @@ int mysqlhelper_select_json_data(const char *sql,char * out)
 		{	
 			fprintf(stderr,"select data error:%s:%s\n",__func__,mysql_error(DBOHBJ));
 			
-			return -1;
+			return NULL;
 		}
 	}
+	jout =	cJSON_Print(root);
+	cJSON_Delete(root);
 
-	return ret;
+
+	return jout;
 }
 void display_head(MYSQL_RES * res,void (*show_head)(char*))
 {
