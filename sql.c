@@ -11,14 +11,28 @@ char *database = "paper";
 char out[20480] = {};
 char temp[256] = {};
 
+char * select_json_by_sql(const char *sql,int *count)
+{
+	mysqlhelper_init(host,username,passwd,database);
+	char * ret = (char*)mysqlhelper_select_json_data(sql,count);
+	mysqlhelper_destroy();
+	return ret;
+}
+/*===============
+ * 返回值： 0 成功
+ *			-1 失败
+ *==============*/
+int operate_by_sql(const char *sql)
+{
+	mysqlhelper_init(host,username,passwd,database);
+	int ret = operate_data(sql);
+	mysqlhelper_destroy();
+	return ret;
+}
 void sqltest()
 {
-	int row;
-
 	char strsql[200];
-
 	mysqlhelper_init(host,username,passwd,database);
-
 //	operate_data("insert into user values(1,'ming','ming','10.9.3.20')");
 
 	sprintf(strsql,"select * from user");

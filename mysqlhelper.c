@@ -10,13 +10,13 @@ int mysqlhelper_init(const char *host,const char *username,const char *passwd,co
 	void* ret = NULL;
 
 	DBOHBJ = mysql_init(NULL);
-	
+
 	if((ret = mysql_real_connect(DBOHBJ,host,username,passwd,database,0,NULL,0)) == NULL) 
 	{
 		fprintf(stderr,"connect error:%s:%s\n",__func__,mysql_error(DBOHBJ));
 		return -1;
 	}
-	
+
 	return 0;
 }
 
@@ -34,13 +34,21 @@ void display_json_head(MYSQL_RES * res,cJSON *root)
 	{
 		//cJSON_AddItemToObject(root,"",((field_ptr->name!=NULL)?*(field_ptr->name):""));
 		cJSON_AddStringToObject(root,"",((field_ptr->name!=NULL)? (field_ptr->name):""));
-	//	show_head(field_ptr->name);
+		//	show_head(field_ptr->name);
 	}
 }
-
+/*=========================
+ *参数:sql -> query 
+ *      count->select count
+ *返回值: char*    
+ *        将select结果转换为json字符串
+ *        {
+ *			"Headers":[]
+ *			"Contents":[]
+ *        }
+ *=======================*/ 
 char *  mysqlhelper_select_json_data(const char *sql,int *count)
 {
-	int ret=-1;
 	MYSQL_RES *res;
 	MYSQL_ROW row;
 	cJSON *root,*header,*content,*line;
@@ -50,20 +58,20 @@ char *  mysqlhelper_select_json_data(const char *sql,int *count)
 	if(mysql_query(DBOHBJ,sql))
 	{
 		fprintf(stderr,"select data error:%s:%s\n",__func__,mysql_error(DBOHBJ));
-	
+
 		return NULL;
 	}else
 	{
-	//	res = mysql_use_result(DBOHBJ);
+		//	res = mysql_use_result(DBOHBJ);
 		res = mysql_store_result(DBOHBJ);
-	
+
 		if(res)
 		{
 			root = cJSON_CreateObject();
 			cJSON_AddItemToObject(root,"Headers",header=cJSON_CreateArray());
 			display_json_head(res,header);
 			*count  = mysql_num_rows(res);
-			cJSON_AddItemToObject(root,"Content",content=cJSON_CreateArray());
+			cJSON_AddItemToObject(root,"Contents",content=cJSON_CreateArray());
 			while((row = mysql_fetch_row(res)) != NULL)
 			{
 				field_count = 0;
@@ -71,7 +79,6 @@ char *  mysqlhelper_select_json_data(const char *sql,int *count)
 				while(field_count < mysql_field_count(DBOHBJ))
 				{
 					cJSON_AddStringToObject(line,"",row[field_count]!=NULL?row[field_count]:"");
-				//	show_element(row[field_count]);
 					field_count++;
 				}
 			}
@@ -80,7 +87,7 @@ char *  mysqlhelper_select_json_data(const char *sql,int *count)
 		else
 		{	
 			fprintf(stderr,"select data error:%s:%s\n",__func__,mysql_error(DBOHBJ));
-			
+
 			return NULL;
 		}
 	}
@@ -109,19 +116,19 @@ int mysqlhelper_select_data(const char *sql,void(*show_line_begin)(),void(*show_
 	if(mysql_query(DBOHBJ,sql))
 	{
 		fprintf(stderr,"select data error:%s:%s\n",__func__,mysql_error(DBOHBJ));
-	
+
 		return -1;
 	}else
 	{
-	//	res = mysql_use_result(DBOHBJ);
+		//	res = mysql_use_result(DBOHBJ);
 		res = mysql_store_result(DBOHBJ);
-	
+
 		if(res)
 		{
-			
+
 			display_head(res,show_head);
 			ret = mysql_num_rows(res);
-			
+
 			while((row = mysql_fetch_row(res)) != NULL)
 			{
 				field_count = 0;
@@ -138,7 +145,7 @@ int mysqlhelper_select_data(const char *sql,void(*show_line_begin)(),void(*show_
 		else
 		{	
 			fprintf(stderr,"select data error:%s:%s\n",__func__,mysql_error(DBOHBJ));
-			
+
 			return -1;
 		}
 	}
@@ -150,9 +157,9 @@ int	operate_data(const char *sql)
 	int ret = -1;
 	if(mysql_real_query(DBOHBJ,"BEGIN;",(unsigned int)strlen("BEGIN;")))
 	{
-		
+
 		fprintf(stderr,"operate data error:%s:%s\n",__func__,mysql_error(DBOHBJ));
-			
+
 		return -1;
 	}
 	ret = mysql_query(DBOHBJ,sql);
