@@ -1,45 +1,48 @@
-/* md5.h - header file for md5.c */
-/* RSA Data Security, Inc., MD5 Message-Digest Algorithm */
-
-/* NOTE: Numerous changes have been made; the following notice is
- * included to satisfy legal requirements.
- *
- * Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All
- * rights reserved.
- *
- * License to copy and use this software is granted provided that it
- * is identified as the "RSA Data Security, Inc. MD5 Message-Digest
- * Algorithm" in all material mentioning or referencing this software
- * or this function.
- *
- * License is also granted to make and use derivative works provided
- * that such works are identified as "derived from the RSA Data
- * Security, Inc. MD5 Message-Digest Algorithm" in all material
- * mentioning or referencing the derived work.
- *
- * RSA Data Security, Inc. makes no representations concerning either
- * the merchantability of this software or the suitability of this
- * software for any particular purpose. It is provided "as is"
- * without express or implied warranty of any kind.
- *
- * These notices must be retained in any copies of any part of this
- * documentation and/or software.
- * */
-
-#ifndef H__MD5
-#define H__MD5
-
-typedef unsigned long UINT4;
-
+#ifndef MD5_H
+#define MD5_H
+ 
 typedef struct
 {
-	UINT4 state[4];
-	UINT4 count[2];
-	unsigned char buffer[64];
-} MD5;
-
-void MD5Open(MD5 *);
-void MD5Digest(MD5 *, const void *, unsigned int);
-void MD5Close(MD5 *, unsigned char[16]);
-
+    unsigned int count[2];
+    unsigned int state[4];
+    unsigned char buffer[64];   
+}MD5_CTX;
+ 
+                         
+#define F(x,y,z) ((x & y) | (~x & z))
+#define G(x,y,z) ((x & z) | (y & ~z))
+#define H(x,y,z) (x^y^z)
+#define I(x,y,z) (y ^ (x | ~z))
+#define ROTATE_LEFT(x,n) ((x << n) | (x >> (32-n)))
+#define FF(a,b,c,d,x,s,ac) \
+          { \
+          a += F(b,c,d) + x + ac; \
+          a = ROTATE_LEFT(a,s); \
+          a += b; \
+          }
+#define GG(a,b,c,d,x,s,ac) \
+          { \
+          a += G(b,c,d) + x + ac; \
+          a = ROTATE_LEFT(a,s); \
+          a += b; \
+          }
+#define HH(a,b,c,d,x,s,ac) \
+          { \
+          a += H(b,c,d) + x + ac; \
+          a = ROTATE_LEFT(a,s); \
+          a += b; \
+          }
+#define II(a,b,c,d,x,s,ac) \
+          { \
+          a += I(b,c,d) + x + ac; \
+          a = ROTATE_LEFT(a,s); \
+          a += b; \
+          }                                            
+void MD5Init(MD5_CTX *context);
+void MD5Update(MD5_CTX *context,unsigned char *input,unsigned int inputlen);
+void MD5Final(MD5_CTX *context,unsigned char digest[16]);
+void MD5Transform(unsigned int state[4],unsigned char block[64]);
+void MD5Encode(unsigned char *output,unsigned int *input,unsigned int len);
+void MD5Decode(unsigned int *output,unsigned char *input,unsigned int len);
+ 
 #endif
