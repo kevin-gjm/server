@@ -133,6 +133,7 @@ void httpd_handler(struct evhttp_request *req, void *arg)
 				evhttp_add_header(req->output_headers, "Connection", "Keep-Alive");
 
 				evbuffer_add_printf(buf,"%s",out);
+				//add content
 				evhttp_send_reply_chunk(req,buf);
 
 				evhttp_send_reply_end(req);
