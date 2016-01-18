@@ -120,25 +120,8 @@ void httpd_handler(struct evhttp_request *req, void *arg)
 			}
 			else
 			{
-				char out[2048]={0};
-				char *post_data = (char *) EVBUFFER_DATA(req->input_buffer);
-				sprintf(out, "post_data=%s\n", post_data);
-				struct evbuffer *buf;
-				buf = evbuffer_new();
-				//输出的内容
-				evhttp_send_reply_start(req,200,"OK");
-				//HTTP header
-				evhttp_add_header(req->output_headers, "Server", MYHTTPD_SIGNATURE);
-				evhttp_add_header(req->output_headers, "Content-Type", "text/plain; charset=UTF-8");
-				evhttp_add_header(req->output_headers, "Connection", "Keep-Alive");
-
-				evbuffer_add_printf(buf,"%s",out);
-				//add content
-				evhttp_send_reply_chunk(req,buf);
-
-				evhttp_send_reply_end(req);
-				evbuffer_free(buf);
-			}
+				execute_cgi_post(req);
+	  		}
 		}
 
 	}
@@ -262,3 +245,5 @@ int main(int argc, char *argv[]) {
 	evhttp_free(httpd);
 	return 0;
 }
+
+
