@@ -37,6 +37,8 @@
 //处理模块
 void httpd_handler(struct evhttp_request *req, void *arg) 
 {
+
+	printf("get a call\n\n");
 	char path[512];
 
 	int cgi =0;
@@ -118,6 +120,10 @@ void httpd_handler(struct evhttp_request *req, void *arg)
 				evhttp_parse_query(decoded_uri, &params);
 				execute_cgi_get(&params);
 			}
+			else
+			{
+				execute_cgi_post(req);
+	  		}
 		}
 
 	}
@@ -241,3 +247,5 @@ int main(int argc, char *argv[]) {
 	evhttp_free(httpd);
 	return 0;
 }
+
+

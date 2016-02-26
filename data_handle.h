@@ -3,4 +3,5 @@
 
 int execute_cgi_get(struct evkeyvalq *params);
 
+int execute_cgi_post(struct evhttp_request *req);
 #endif

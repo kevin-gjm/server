@@ -6,6 +6,7 @@ SRCS = mysqlhelper.c \
 	   cJSON.c  \
 	   http_handle.c	\
 	   data_handle.c	\
+	   md5.c	\
 	   myhttpd.c
 
 OBJS = $(SRCS:.c=.o)
