@@ -37,6 +37,8 @@
 //处理模块
 void httpd_handler(struct evhttp_request *req, void *arg) 
 {
+
+	printf("get a call\n\n");
 	char path[512];
 
 	int cgi =0;
